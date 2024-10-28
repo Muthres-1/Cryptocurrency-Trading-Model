@@ -4,9 +4,11 @@ import time
 import joblib
 import os
 import logging
-# Step 2: API Data Retrieval
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+
+# Step 2: API Data Retrieval
 def fetch_crypto_data(crypto_pair, start_date, retries=5):
     url = "https://api.binance.com/api/v3/klines"
     start_timestamp = int(pd.to_datetime(start_date).timestamp() * 1000)
@@ -35,8 +37,19 @@ def fetch_crypto_data(crypto_pair, start_date, retries=5):
                 start_timestamp = data[-1][0] + 1
                 time.sleep(0.1)  # Rate limit handling
 
-            # Convert to DataFrame
-            df = pd.DataFrame(all_data, columns=[...])  # Use appropriate column names
+            # Convert to DataFrame with appropriate column names
+            columns = [
+                'Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 
+                'Close Time', 'Quote Asset Volume', 'Number of Trades', 
+                'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore'
+            ]
+            df = pd.DataFrame(all_data, columns=columns)
+            
+            # Convert the columns to appropriate data types if needed
+            df['Open Time'] = pd.to_datetime(df['Open Time'], unit='ms')
+            df['Close Time'] = pd.to_datetime(df['Close Time'], unit='ms')
+            df[['Open', 'High', 'Low', 'Close', 'Volume']] = df[['Open', 'High', 'Low', 'Close', 'Volume']].astype(float)
+            
             return df
 
         except requests.exceptions.RequestException as e:
@@ -45,10 +58,9 @@ def fetch_crypto_data(crypto_pair, start_date, retries=5):
 
     return None  # Return None if all attempts fail
 
-
 # Step 3: Calculate Metrics
 def calculate_metrics(data, variable1, variable2):
-    data['Date'] = pd.to_datetime(data['Date'])
+    data['Date'] = pd.to_datetime(data['Open Time'])
     data[f'High_Last_{variable1}_Days'] = data['High'].rolling(window=variable1).max()
     data[f'Low_Last_{variable1}_Days'] = data['Low'].rolling(window=variable1).min()
 
@@ -96,8 +108,8 @@ if __name__ == "__main__":
         metrics_data = calculate_metrics(crypto_data, variable1=7, variable2=5)
         
         # File paths for loading saved models
-        model_high_path = "model_high1.joblib"
-        model_low_path = "model_low1.joblib"
+        model_high_path = r"C:\Users\hp\vscode\python And LIbraries\model_high1.pkl"
+        model_low_path = r"C:\Users\hp\vscode\python And LIbraries\model_low1.pkl"
 
         # Load pre-trained models
         if os.path.exists(model_high_path) and os.path.exists(model_low_path):
