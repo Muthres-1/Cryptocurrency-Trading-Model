@@ -1,8 +1,8 @@
-# Cryptocurrency Trading Model
+# Trading Model
 
 ## Overview
 
-This project implements a cryptocurrency trading model that fetches historical data from the Binance API, calculates key metrics, trains linear regression models for price prediction, and saves the results to Google Sheets.
+This project implements a trading model that fetches historical data from the Binance API, calculates key metrics, trains linear regression models for price prediction, and saves the results to Google Sheets.
 
 ## Features
 
